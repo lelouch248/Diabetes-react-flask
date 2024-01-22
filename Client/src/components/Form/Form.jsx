@@ -13,7 +13,6 @@ const Form = () => {
     bmi: "",
     diabetesPedigreeFunction: "",
     age: "",
-    outcome: "",
   });
   const [validationErrors, setValidationErrors] = useState({
     pregnancies: "",
@@ -24,15 +23,17 @@ const Form = () => {
     bmi: "",
     diabetesPedigreeFunction: "",
     age: "",
-    outcome: "",
   });
 
   const [popUp, setPopUp] = useState(false);
   const [popUpMessage, setPopUpMessage] = useState("");
   const [predictedData, setPredictedData] = useState("");
 
+  const predictedLabels = ["You have diabetes :(", "you dont have diabetes :)"];
+
   const validateField = (name, value) => {
-    const integerRegex = /^\d+$/;
+    const integerRegex = /^-?\d+(\.\d+)?$/;
+
     const errorMessage = `Please enter ${name}, format: integer`;
 
     if (value.trim === "") {
@@ -55,23 +56,37 @@ const Form = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    const hasErrors = Object.values(validationErrors).some(
-      (error) => error !== "",
-    );
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
 
-    if (hasErrors) {
-      setPopUpMessage("Form contains validation errors. Please correct them.");
-      setPopUp(!popUp);
-    } else {
-      console.log("Submitting data:", formData);
-      await axios
-        .post("/predictDiabetes", {
-          ...formData,
-        })
-        .then((res) => {
-          setPredictedData(res.data);
-        });
+      const hasErrors = Object.values(validationErrors).some(
+        (error) => error !== "",
+      );
+
+      if (hasErrors) {
+        setPopUpMessage(
+          "Form contains validation errors. Please correct them.",
+        );
+        setPopUp(!popUp);
+      } else {
+        console.log("Submitting data:", formData);
+        const headers = {
+          "Content-Type": "application/json",
+        };
+
+        await axios
+          .post("http://localhost:4000/predictDiabetes", formData, {
+            headers: headers,
+          })
+          .then(async (res) => {
+            const prediction = await res.data.prediction;
+            setPredictedData(prediction);
+          });
+      }
+    } catch (error) {
+      console.error("Error during axios request:", error);
+      // Handle the error, e.g., show an error message to the user
     }
   };
 
@@ -122,8 +137,12 @@ const Form = () => {
             </Button>
           </div>
         </div>
+        {predictedData != "" && (
+          <p className="mt-5 text-5xl animate-fade-in">
+            {predictedLabels[predictedData]}
+          </p>
+        )}
       </div>
-      {predictedData !== "" && <p>{predictedData}</p>}
     </>
   );
 };

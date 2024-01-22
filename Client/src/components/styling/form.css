@@ -4,6 +4,18 @@
   padding: 30px 20px;
   color: aliceblue;
 }
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
-.popup-container {
+.animate-fade-in {
+  animation: fadeIn 1s ease-out;
 }
