@@ -6,7 +6,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+# Ignore Node.js build artifacts
+/node_modules/
 
+# Ignore Flask build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+venv/
 node_modules
 dist
 dist-ssr
